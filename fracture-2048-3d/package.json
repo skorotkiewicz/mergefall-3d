@@ -1,0 +1,21 @@
+{
+  "name": "fracture-2048",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun --port 5173 dist/index.html",
+    "dev": "bun --hot --port 5173 src/index.html",
+    "build": "bun build ./src/index.html --minify --outdir ./dist",
+    "test": "bun test",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
+  },
+  "packageManager": "bun@1.4.4",
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15"
+  }
+}
