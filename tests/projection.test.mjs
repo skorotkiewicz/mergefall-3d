@@ -1,6 +1,23 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { compareCubes, cubeFaces } from '../src/projection.mjs';
+import { HEIGHT, SIZE } from '../src/engine.mjs';
+import { compareCubes, cubeFaces, fitView, projectPoint } from '../src/projection.mjs';
+
+test('the full board and newly spawned pieces stay inside the canvas throughout rotation and resize', () => {
+  for (const [width, height] of [[790, 485], [350, 390], [300, 450], [180, 600]]) {
+    const view = fitView(width, height, SIZE, HEIGHT);
+    for (let degrees = 0; degrees < 360; degrees += 5) {
+      const angle = degrees * Math.PI / 180;
+      for (const x of [0, SIZE]) for (const z of [0, SIZE]) for (const y of [0, HEIGHT + 0.06]) {
+        const point = projectPoint(x, y, z, angle, view, SIZE);
+        const label = `${width}×${height}, ${degrees} degrees, corner ${x},${y},${z}`;
+        assert.ok(point.x >= 20 - 1e-8 && point.x <= width - 20 + 1e-8, `Horizontal clipping: ${label}`);
+        assert.ok(point.y >= 20 - 1e-8, `Top clipping: ${label}`);
+        assert.ok(point.y <= height - 28 + 1e-8, `Floor or controls clipped: ${label}`);
+      }
+    }
+  }
+});
 
 test('visible faces keep their labels upright through a full camera turn', () => {
   for (let degrees = 5; degrees < 360; degrees += 10) {

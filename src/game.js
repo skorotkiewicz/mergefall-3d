@@ -1,5 +1,5 @@
-import { cellsOf, fits, HEIGHT, initialBoard, landing, piece, resolve, rotated } from './engine.mjs';
-import { compareCubes, cubeFaces } from './projection.mjs';
+import { cellsOf, fits, HEIGHT, initialBoard, landing, piece, resolve, rotated, SIZE } from './engine.mjs';
+import { compareCubes, cubeFaces, fitView, projectPoint } from './projection.mjs';
 
 const $ = (id) => document.getElementById(id),
   canvas = $('game'),
@@ -48,8 +48,7 @@ try {
 } catch {}
 let width = 0,
   height = 0,
-  scale = 50,
-  originY = 0;
+  view = { scale: 50, originX: 0, originY: 0 };
 function resize() {
   const r = canvas.getBoundingClientRect();
   width = r.width;
@@ -58,17 +57,11 @@ function resize() {
   canvas.width = width * dpr;
   canvas.height = height * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  scale = Math.min(width / 6.8, height / 9.4);
-  originY = height * 0.78;
+  view = fitView(width, height, SIZE, HEIGHT);
 }
 new ResizeObserver(resize).observe(canvas);
 function project(x, y, z) {
-  const a = x - 2,
-    b = z - 2;
-  return {
-    x: width * 0.5 + (a * Math.cos(angle) - b * Math.sin(angle)) * scale,
-    y: originY + (a * Math.sin(angle) + b * Math.cos(angle)) * scale * 0.46 - y * scale * 0.91,
-  };
+  return projectPoint(x, y, z, angle, view, SIZE);
 }
 function path(points) {
   ctx.beginPath();
