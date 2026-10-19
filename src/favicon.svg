@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Mergefall</title>
+  <rect width="64" height="64" rx="15" fill="#151713"/>
+  <path d="M32 8 55 21 32 34 9 21Z" fill="#e8ffa7"/>
+  <path d="M9 21 32 34 32 58 9 45Z" fill="#d6f57a"/>
+  <path d="M32 34 55 21 55 45 32 58Z" fill="#92b34f"/>
+  <path d="M9 21 32 34 55 21M32 34V58" fill="none" stroke="#151713" stroke-opacity=".15" stroke-width="1.5"/>
+  <path d="M13 20 32 10 51 20" fill="none" stroke="#fff" stroke-opacity=".45" stroke-linecap="round"/>
+  <g transform="matrix(1 .565 0 1 15 29)">
+    <path d="M1 3C1-1 12-1 12 3 12 6 1 7 1 12H12" fill="none" stroke="#27341b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
