@@ -1,1 +1,19 @@
-{"name":"mergefall-3d","private":true,"version":"1.0.0","scripts":{"start":"python3 -m http.server 5173 --directory mergefall/dist","test":"node --test mergefall/engine.test.mjs","check":"node --check mergefall/dist/game.js && node --check mergefall/dist/engine.mjs"}}
+{
+  "name": "mergefall-3d",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "start": "bun --hot --port 5173 src/index.html",
+    "build": "bun build ./src/index.html --minify --outdir ./dist",
+    "test": "bun test",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
+  },
+  "packageManager": "bun@1.4.4",
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15"
+  }
+}
