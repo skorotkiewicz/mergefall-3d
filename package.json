@@ -3,7 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "start": "bun --hot --port 5173 src/index.html",
+    "start": "bun --port 5173 dist/index.html",
+    "dev": "bun --hot --port 5173 src/index.html",
     "build": "bun build ./src/index.html --minify --outdir ./dist",
     "test": "bun test",
     "check": "biome check .",
