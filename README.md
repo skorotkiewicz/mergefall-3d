@@ -10,4 +10,6 @@ Use arrow keys or WASD to move across the 4 × 4 well, Q/E to rotate the piece, 
 
 The source is in `src/`. Run `bun run build` to bundle and minify the game into `dist/`, ready for static hosting. Development with `bun run dev` does not require a build.
 
+The highest tile's cube preview shows its color even when the tile is buried in the stack. After game over, choose **Inspect board** to hide the results and rotate the final stack with Z/X or the view buttons. Use **Show results** to return, or press Escape to switch between the board and results. Inspecting preserves the final board and score.
+
 Turn sound on to hear the original Mergefall arcade loop and merge effects. JavaScript synthesizes the melody, bass, arpeggios, and percussion with Web Audio, with no audio files or downloads. The music pauses with the game, resumes where it left off, and speeds up in Classic mode.

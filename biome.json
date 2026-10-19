@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["biome.json", "package.json", "src/**", "*.test.mjs"]
+    "includes": ["biome.json", "package.json", "src/**", "*.test.mjs", "!fracture-2048-3d"]
   },
   "formatter": {
     "enabled": true,

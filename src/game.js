@@ -258,21 +258,34 @@ function update() {
   $('best').textContent = best.toLocaleString();
   const highest = Math.max(...board.map((c) => c.value), 2);
   $('highest').innerHTML = `${highest.toLocaleString()}<span>/ 2048</span>`;
+  const preview = $('highest-preview');
+  if (preview.dataset.value !== String(highest)) {
+    preview.innerHTML = miniCube(highest);
+    preview.dataset.value = String(highest);
+    preview.setAttribute('aria-label', `Highest tile: ${highest.toLocaleString()}`);
+  }
   $('progress').style.width = `${Math.min(100, (Math.log2(highest) / 11) * 100)}%`;
   $('sound-label').textContent = sound ? 'Sound on' : 'Sound off';
   $('sound-btn').setAttribute('aria-label', sound ? 'Turn sound off' : 'Turn sound on');
   $('sound-btn').setAttribute('aria-pressed', String(sound));
   $('sound-btn').title = 'Background music and sound effects';
   $('sound-icon').textContent = sound ? '♫' : '♪';
-  $('status').textContent = phase === 'ready' ? 'READY WHEN YOU ARE' : phase === 'paused' ? 'A MOMENT TO RESET' : phase === 'over' ? 'ONE MORE TRY?' : 'FIND YOUR NEXT MERGE';
+  const inspecting = phase === 'over' && $('game-overlay').hidden;
+  $('show-results').hidden = !inspecting;
+  $('landing-note').textContent = phase === 'over' ? 'Your final stack' : 'Your next landing';
+  document.querySelectorAll('[data-action]').forEach((button) => {
+    button.disabled = phase === 'over';
+  });
+  $('status').textContent = phase === 'ready' ? 'READY WHEN YOU ARE' : phase === 'paused' ? 'A MOMENT TO RESET' : phase === 'over' ? (inspecting ? 'YOUR FINAL STACK' : 'ONE MORE TRY?') : 'FIND YOUR NEXT MERGE';
   $('start').innerHTML = phase === 'ready' ? "Let's play <span>↗</span>" : phase === 'playing' ? 'Pause game <span>Ⅱ</span>' : phase === 'paused' ? 'Keep playing <span>→</span>' : 'Play again <span>↗</span>';
   $('mode').innerHTML = `${chill ? 'Chill' : 'Classic'} mode <span>⌄</span>`;
-  $('action-note').textContent = chill ? 'No rush. Find your rhythm.' : 'A little faster. A little bolder.';
+  $('action-note').textContent = inspecting ? 'Z / X to rotate. Esc for results.' : chill ? 'No rush. Find your rhythm.' : 'A little faster. A little bolder.';
   renderQueue();
 }
 function miniCube(value) {
-  const c = palette[value] || palette[2];
-  return `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 20 32 7 56 20 32 33Z" fill="${c[0]}"/><path d="M8 20 32 33 32 59 8 46Z" fill="${c[1]}"/><path d="M32 33 56 20 56 46 32 59Z" fill="${c[2]}"/><text x="21" y="41" text-anchor="middle" fill="#293a30" font-family="sans-serif" font-size="16" font-weight="600" transform="rotate(28 21 41)">${value}</text><path d="M8 20 32 33 56 20" fill="none" stroke="#fff3"/></svg>`;
+  const c = palette[Math.min(value, 2048)] || palette[2048];
+  const fontSize = value >= 1024 ? 9 : value >= 128 ? 11 : 16;
+  return `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 20 32 7 56 20 32 33Z" fill="${c[0]}"/><path d="M8 20 32 33 32 59 8 46Z" fill="${c[1]}"/><path d="M32 33 56 20 56 46 32 59Z" fill="${c[2]}"/><text x="21" y="41" text-anchor="middle" fill="#293a30" font-family="sans-serif" font-size="${fontSize}" font-weight="600" transform="rotate(28 21 41)">${value}</text><path d="M8 20 32 33 56 20" fill="none" stroke="#fff3"/></svg>`;
 }
 function renderQueue() {
   $('next-pieces').innerHTML = queue
@@ -320,7 +333,7 @@ function lock() {
   fallTime = 0;
   if (!fits(board, active)) {
     phase = 'over';
-    showOverlay('A GOOD RUN. A FRESH START.', 'Room for one more?', `The stack is full. Your score: ${score.toLocaleString()}.`, "Let's go again");
+    showResults();
   }
   update();
 }
@@ -329,7 +342,20 @@ function showOverlay(eyebrow, title, copy, button) {
   $('overlay-title').textContent = title;
   $('overlay-copy').textContent = copy;
   $('resume').innerHTML = `${button} <span>→</span>`;
+  $('inspect-board').hidden = phase !== 'over';
   $('game-overlay').hidden = false;
+}
+function showResults() {
+  if (phase !== 'over') return;
+  showOverlay('A GOOD RUN. A FRESH START.', 'Room for one more?', `The stack is full. Your score: ${score.toLocaleString()}.`, "Let's go again");
+  update();
+  $('resume').focus();
+}
+function inspectBoard() {
+  if (phase !== 'over') return;
+  $('game-overlay').hidden = true;
+  update();
+  canvas.focus();
 }
 function togglePlay() {
   if (phase === 'over') {
@@ -405,6 +431,12 @@ document.addEventListener('keydown', (e) => {
   if ($('help-dialog').open || e.target.tagName === 'INPUT') return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const key = e.key.toLowerCase();
+  if (e.key === 'Escape' && phase === 'over') {
+    e.preventDefault();
+    if ($('game-overlay').hidden) showResults();
+    else inspectBoard();
+    return;
+  }
   if (key === 'z' || key === 'x') {
     e.preventDefault();
     if (!e.repeat) rotateView(key === 'z' ? -1 : 1);
@@ -436,6 +468,8 @@ document.addEventListener('keydown', (e) => {
 });
 $('start').onclick = togglePlay;
 $('resume').onclick = togglePlay;
+$('inspect-board').onclick = inspectBoard;
+$('show-results').onclick = showResults;
 $('restart').onclick = () => reset(phase === 'playing');
 $('mode').onclick = () => {
   chill = !chill;
