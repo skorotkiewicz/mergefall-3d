@@ -1,0 +1,1 @@
+{"name":"mergefall-3d","private":true,"version":"1.0.0","scripts":{"start":"python3 -m http.server 5173 --directory mergefall/dist","test":"node --test mergefall/engine.test.mjs","check":"node --check mergefall/dist/game.js && node --check mergefall/dist/engine.mjs"}}
