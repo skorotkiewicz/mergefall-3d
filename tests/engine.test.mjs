@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { fits, initialBoard, landing, resolve, rotated } from './src/engine.mjs';
+import { fits, initialBoard, landing, resolve, rotated } from '../src/engine.mjs';
 
 test('landing stays above occupied cells and never below the floor', () => {
   const p = {

@@ -1,4 +1,5 @@
 import { cellsOf, fits, HEIGHT, initialBoard, landing, piece, resolve, rotated } from './engine.mjs';
+import { compareCubes, cubeFaces } from './projection.mjs';
 
 const $ = (id) => document.getElementById(id),
   canvas = $('game'),
@@ -117,12 +118,7 @@ function cube(c, { ghost = false, falling = false, alpha = 1 } = {}) {
     n = 0.91;
   const p = (a, b, d) => project(x + a * n, y + b * n, z + d * n),
     col = palette[Math.min(c.value, 2048)] || palette[2048];
-  const top = [p(0, 1, 0), p(1, 1, 0), p(1, 1, 1), p(0, 1, 1)];
-  const sides = [];
-  if (Math.sin(angle) > 0) sides.push([p(0, 1, 1), p(1, 1, 1), p(1, 0, 1), p(0, 0, 1)]);
-  else sides.push([p(1, 1, 0), p(0, 1, 0), p(0, 0, 0), p(1, 0, 0)]);
-  if (Math.cos(angle) > 0) sides.push([p(1, 1, 1), p(1, 1, 0), p(1, 0, 0), p(1, 0, 1)]);
-  else sides.push([p(0, 1, 0), p(0, 1, 1), p(0, 0, 1), p(0, 0, 0)]);
+  const { top, sides } = cubeFaces(p, angle);
   ctx.save();
   ctx.globalAlpha = alpha;
   if (ghost) {
@@ -170,9 +166,13 @@ function render(now) {
   ctx.shadowOffsetY = 24;
   poly(floor, '#242c1e', '#4b573b');
   ctx.restore();
-  const base = [floor[2], floor[3], { x: floor[3].x, y: floor[3].y + 11 }, { x: floor[2].x, y: floor[2].y + 11 }];
-  poly(base, '#11160d', '#3a452d');
-  poly([floor[1], floor[2], { x: floor[2].x, y: floor[2].y + 11 }, { x: floor[1].x, y: floor[1].y + 11 }], '#1b2414', '#3a452d');
+  const base = cubeFaces((x, y, z) => {
+    const point = project(x * 4, 0, z * 4);
+    return { x: point.x, y: point.y + (1 - y) * 11 };
+  }, angle);
+  base.sides.forEach((face, i) => {
+    poly(face, i === 0 ? '#11160d' : '#1b2414', '#3a452d');
+  });
   for (let i = 0; i <= 4; i++) {
     line(project(i, 0, 0), project(i, 0, 4), '#4b583a66');
     line(project(0, 0, i), project(4, 0, i), '#4b583a66');
@@ -225,9 +225,7 @@ function render(now) {
         y: c.y + (phase === 'ready' ? Math.sin(now * 0.0018) * 0.06 : 0),
       });
     });
-  items.sort((a, b) => (a.x + a.z) * 0 + (a.x * Math.sin(angle) + a.z * Math.cos(angle)) + a.y * 0.1 - (b.x * Math.sin(angle) + b.z * Math.cos(angle) + b.y * 0.1));
-  // A lower cube must be drawn before the cube immediately above it.
-  items.sort((a, b) => (a.y === b.y ? a.x * Math.sin(angle) + a.z * Math.cos(angle) - (b.x * Math.sin(angle) + b.z * Math.cos(angle)) : a.y - b.y));
+  items.sort((a, b) => compareCubes(a, b, angle));
   items.forEach((c) => {
     cube(c, { falling: c.falling });
   });

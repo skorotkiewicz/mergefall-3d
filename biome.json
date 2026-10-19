@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["biome.json", "package.json", "src/**", "engine.test.mjs"]
+    "includes": ["biome.json", "package.json", "src/**", "*.test.mjs"]
   },
   "formatter": {
     "enabled": true,
