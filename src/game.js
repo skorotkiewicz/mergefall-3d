@@ -418,6 +418,13 @@ function act(action) {
 }
 document.addEventListener('keydown', (e) => {
   if ($('help-dialog').open || e.target.tagName === 'INPUT') return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const key = e.key.toLowerCase();
+  if (key === 'z' || key === 'x') {
+    e.preventDefault();
+    if (!e.repeat) rotateView(key === 'z' ? -1 : 1);
+    return;
+  }
   const actions = {
     ArrowLeft: 'left',
     ArrowRight: 'right',
@@ -450,11 +457,14 @@ $('mode').onclick = () => {
   fallTime = 0;
   update();
 };
+function rotateView(direction) {
+  targetAngle += (direction * Math.PI) / 2;
+}
 $('view-left').onclick = () => {
-  targetAngle -= Math.PI / 2;
+  rotateView(-1);
 };
 $('view-right').onclick = () => {
-  targetAngle += Math.PI / 2;
+  rotateView(1);
 };
 $('sound-btn').onclick = () => {
   sound = !sound;
