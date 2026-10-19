@@ -9,3 +9,5 @@ Biome handles formatting, linting, and import organization. Run `bun run check` 
 Use arrow keys or WASD to move across the 4 × 4 well, Q/E to rotate the piece, Z/X to rotate the board left/right, Space to drop, and P to pause. Touch controls appear on smaller screens. Equal face-adjacent blocks merge, gravity settles the remaining blocks, and chain reactions continue until the board is stable. Reach 2048 and keep playing. Best scores and sound preference are saved in the browser.
 
 The source is in `src/`. Run `bun run build` to bundle and minify the game into `dist/`, ready for static hosting. Development with `bun run dev` does not require a build.
+
+Turn sound on to hear the original Mergefall arcade loop and merge effects. JavaScript synthesizes the melody, bass, arpeggios, and percussion with Web Audio, with no audio files or downloads. The music pauses with the game, resumes where it left off, and speeds up in Classic mode.

@@ -1,9 +1,11 @@
+import { MergefallAudio } from './audio.mjs';
 import { cellsOf, fits, HEIGHT, initialBoard, landing, piece, resolve, rotated, SIZE } from './engine.mjs';
 import { compareCubes, cubeFaces, fitView, projectPoint } from './projection.mjs';
 
 const $ = (id) => document.getElementById(id),
   canvas = $('game'),
   ctx = canvas.getContext('2d');
+const audio = new MergefallAudio();
 const palette = {
   2: ['#bfd9b8', '#a3bd9c', '#789d76'],
   4: ['#a7d6cf', '#80b8b2', '#548f87'],
@@ -34,7 +36,6 @@ let board = initialBoard(),
   phase = 'ready',
   chill = true,
   sound = false,
-  audioCtx,
   fallTime = 0,
   last = performance.now(),
   angle = Math.PI / 4,
@@ -248,23 +249,11 @@ function render(now) {
   requestAnimationFrame(render);
 }
 function tone(frequency = 330, duration = 0.08) {
-  if (!sound) return;
-  try {
-    audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
-    audioCtx.resume();
-    const oscillator = audioCtx.createOscillator(),
-      gain = audioCtx.createGain();
-    oscillator.connect(gain);
-    gain.connect(audioCtx.destination);
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.075, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + duration);
-  } catch {}
+  audio.sync({ enabled: sound, playing: phase === 'playing', chill });
+  audio.tone(frequency, duration);
 }
 function update() {
+  audio.sync({ enabled: sound, playing: phase === 'playing', chill });
   $('score').textContent = score.toLocaleString();
   $('best').textContent = best.toLocaleString();
   const highest = Math.max(...board.map((c) => c.value), 2);
@@ -272,6 +261,8 @@ function update() {
   $('progress').style.width = `${Math.min(100, (Math.log2(highest) / 11) * 100)}%`;
   $('sound-label').textContent = sound ? 'Sound on' : 'Sound off';
   $('sound-btn').setAttribute('aria-label', sound ? 'Turn sound off' : 'Turn sound on');
+  $('sound-btn').setAttribute('aria-pressed', String(sound));
+  $('sound-btn').title = 'Background music and sound effects';
   $('sound-icon').textContent = sound ? '♫' : '♪';
   $('status').textContent = phase === 'ready' ? 'READY WHEN YOU ARE' : phase === 'paused' ? 'A MOMENT TO RESET' : phase === 'over' ? 'ONE MORE TRY?' : 'FIND YOUR NEXT MERGE';
   $('start').innerHTML = phase === 'ready' ? "Let's play <span>↗</span>" : phase === 'playing' ? 'Pause game <span>Ⅱ</span>' : phase === 'paused' ? 'Keep playing <span>→</span>' : 'Play again <span>↗</span>';
@@ -357,6 +348,7 @@ function togglePlay() {
   update();
 }
 function reset(play = false) {
+  audio.reset();
   board = initialBoard();
   active = {
     cells: [
